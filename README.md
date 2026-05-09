@@ -1,5 +1,5 @@
 
-<img width="695" height="665" alt="voronoi" src="https://github.com/user-attachments/assets/0e533b03-2e9d-4f8e-8991-666b01852149" />
+<img width="320" height="320" alt="voronoi" src="https://github.com/user-attachments/assets/0e533b03-2e9d-4f8e-8991-666b01852149" />
 
 
 
