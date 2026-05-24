@@ -112,18 +112,18 @@ Arc_s* CBeachBST::findArcAbove(Arc_s* newSite, double sweepLineYpos)
 */
 Arc_s* CBeachBST::findArcAboveInLinearTime(Arc_s* newSite, double sweepLineYpos) // for firsts tests implement simple linear search, later implement red black tree
 {
-	Arc_s* currArc =  mLeftMostArc;  // look for arc strating with leftmost arc, linear time
-	while(currArc != nullptr)
+    Arc_s* currArc =  mLeftMostArc;  // look for arc strating with leftmost arc, linear time
+    while(currArc != nullptr)
     {
-	   Breakpoint_s breakpoints = calculateArcBreakpoints(currArc, sweepLineYpos);
-	   if((newSite->sitePoint).x <= breakpoints.rightBreakpoint && (newSite->sitePoint).x >= breakpoints.leftBreakpoint )
-	   {
+       Breakpoint_s breakpoints = calculateArcBreakpoints(currArc, sweepLineYpos);
+       if((newSite->sitePoint).x <= breakpoints.rightBreakpoint && (newSite->sitePoint).x >= breakpoints.leftBreakpoint )
+       {
 		   // arc found
-		   return currArc;
-	   }
-	   currArc = currArc->next; // else keep looking
+          return currArc;
+       }
+       currArc = currArc->next; // else keep looking
     }
-	return currArc; // nullptr if no arc found
+    return currArc; // nullptr if no arc found
 }
 
 void CBeachBST::fixupInsert(Arc_s* arc) // fixup after inserting a new arc so that all red-black properties of the tree are ensured

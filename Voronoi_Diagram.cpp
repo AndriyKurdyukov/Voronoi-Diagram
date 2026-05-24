@@ -11,9 +11,10 @@ CVoronoiDiagram::CVoronoiDiagram(const std::vector<Point> &p):
    mBbox(Point(),0),
    mGenPoints(p)
 {
+   assert( p.size() > 0 && "set of generator point should not be empty");
    int index = 0;
    std::vector<double> xVals;
-	std::vector<double> yVals;
+   std::vector<double> yVals;
    for (const Point& i: mGenPoints) 
    {
       mEventQueue.insert(Event_s(i, index)); // construct the new event prio queue out of generator points vectors

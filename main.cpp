@@ -85,12 +85,29 @@ void drawVoronoiDiag(std::vector<Point> genPoints, CVoronoiDiagram::BoundaryBox_
 }
 
 
-int main()
+int main(int argc, char * argv[])
 {
    // std::vector<Point> vector = { Point(160,220) , Point(220,205), Point(230,225)};
-   std::vector<Point> vector = { Point(160,220), Point(200,300) , Point(220,205), Point(230,225), Point(250, 150), Point(200, 152) };
+   //std::vector<Point> vector = { Point(160,220), Point(200,300) , Point(220,205),  Point(250, 150), Point(200, 152) };
+   std::vector<Point> vector;
+   int i = 1;
+   if(argc < 2)
+   {
+      std::cout<<"Command usage is: " << argv[0] << " "<< "PointX1,PointY1 PointX2,PointY2..." << std::endl;
+      return 0;
+   }
+   while (i < argc) 
+   {
+        //  tokenize chars coordinates and add to vector
+        std::string coordinates(argv[i]); 
+        auto delim_pos = coordinates.find(",");
+        std::string X_coord = coordinates.substr(0, delim_pos);
+        std::string Y_coord = coordinates.substr(delim_pos + 1, coordinates.size() - delim_pos - 1 );
+        //std::cout<<"X:"<< X_coord <<" " << "Y"<< ": " << Y_coord << std::endl;
+        vector.push_back( Point(stod(X_coord), stod(Y_coord) )  );
+        i++;
+   }
    CVoronoiDiagram vorDiagram(vector);
-   
    while(!vorDiagram.isEventQueueEmpty())
    {
       Event_s event = vorDiagram.getTopPrioEvent();
