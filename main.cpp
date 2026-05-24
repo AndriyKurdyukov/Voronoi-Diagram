@@ -101,6 +101,7 @@ int main(int argc, char * argv[])
         //  tokenize chars coordinates and add to vector
         std::string coordinates(argv[i]); 
         auto delim_pos = coordinates.find(",");
+        assert(delim_pos != std::string::npos && "coordinates should be comma delimited");
         std::string X_coord = coordinates.substr(0, delim_pos);
         std::string Y_coord = coordinates.substr(delim_pos + 1, coordinates.size() - delim_pos - 1 );
         //std::cout<<"X:"<< X_coord <<" " << "Y"<< ": " << Y_coord << std::endl;
