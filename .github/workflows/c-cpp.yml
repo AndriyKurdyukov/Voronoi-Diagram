@@ -16,14 +16,15 @@ jobs:
       run: sudo apt-get install libsfml-dev
     - name: make
       run: make
-    - name: clean
-      run: make clean
-    - name: doctest
-      run: make test
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout repository content
+      uses: actions/checkout@v4
+    - name: Install SFML
+      run: sudo apt-get install libsfml-dev
+    - name: doctest
+      run: make test
     - name: run tests
       run: ./test
-  
   
