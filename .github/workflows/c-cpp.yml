@@ -20,3 +20,8 @@ jobs:
       run: make clean
     - name: doctest
       run: make test
+  test:
+    - name: run tests
+      run: ./test
+  
+  
