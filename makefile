@@ -18,5 +18,3 @@ $(objects) :  $(headers) # recompile even if one header changes
 
 clean:
 	rm -f $(objects)
-	rm -f all
-	rm -f test
