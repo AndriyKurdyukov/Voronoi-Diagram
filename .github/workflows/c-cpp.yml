@@ -12,5 +12,7 @@ jobs:
     steps:
     - name: Checkout repository content
       uses: actions/checkout@v4
+    - name: Install SFML
+      run: sudo apt-get install libsfml-dev
     - name: make
       run: make
