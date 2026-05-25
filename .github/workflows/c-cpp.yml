@@ -21,6 +21,8 @@ jobs:
     - name: doctest
       run: make test
   test:
+    runs-on: ubuntu-latest
+    steps:
     - name: run tests
       run: ./test
   
