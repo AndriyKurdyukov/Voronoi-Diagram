@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository content
       uses: actions/checkout@v4
+    - name: Get tags
+      run: git fetch --tags origin
     - name: Install SFML
       run: sudo apt-get install libsfml-dev
     - name: make
