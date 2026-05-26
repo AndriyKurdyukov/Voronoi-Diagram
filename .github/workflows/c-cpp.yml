@@ -16,6 +16,8 @@ jobs:
       run: sudo apt-get install libsfml-dev
     - name: make
       run: make
+    - name: autoincrement version
+      run: ./autoincrement.sh
   test:
     runs-on: ubuntu-latest
     steps:
