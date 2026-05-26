@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository content
       uses: actions/checkout@v4
     - name: Get tags
-      run: git fetch --tags origin
+      run: git fetch --tags --prune --unshallow
     - name: Install SFML
       run: sudo apt-get install libsfml-dev
     - name: make
