@@ -17,7 +17,7 @@ jobs:
     - name: make
       run: make
     - name: autoincrement version
-      run: ./autoincrement.sh
+      run: sudo ./autoincrement.sh
   test:
     runs-on: ubuntu-latest
     steps:
