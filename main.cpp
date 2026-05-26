@@ -87,7 +87,6 @@ void drawVoronoiDiag(std::vector<Point> genPoints, CVoronoiDiagram::BoundaryBox_
 
 int main(int argc, char * argv[])
 {
-   // std::vector<Point> vector = { Point(160,220) , Point(220,205), Point(230,225)};
    //std::vector<Point> vector = { Point(160,220), Point(200,300) , Point(220,205),  Point(250, 150), Point(200, 152) };
    std::vector<Point> vector;
    int i = 1;
