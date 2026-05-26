@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository content
       uses: actions/checkout@v4
+      with:
+      fetch-depth: 0
     - name: Get tags
       run: git fetch --tags origin
     - name: Install SFML
