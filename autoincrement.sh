@@ -48,6 +48,7 @@ if [ -z "$NEEDS_TAG" ]; then
     git tag $NEW_TAG
     git push --tags
     sed -i 's/untagged_version/$NEW_TAG/' main.cpp
+    grep  "std::string version" main.cpp
 else
     echo "Already a tag on this commit"
 fi
