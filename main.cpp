@@ -94,6 +94,12 @@ int main(int argc, char * argv[])
       std::cout<<"Command usage is: " << argv[0] << " "<< "PointX1,PointY1 PointX2,PointY2..." << std::endl;
       return 0;
    }
+   std::string version = "untagged_version";
+   if(std::string(argv[1]) == "-v") // output version
+   {
+     std::cout<< version << std::endl;
+     return 0;
+   }
    while (i < argc) 
    {
         //  tokenize chars coordinates and add to vector
