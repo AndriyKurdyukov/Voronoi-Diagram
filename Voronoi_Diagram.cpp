@@ -13,27 +13,13 @@ CVoronoiDiagram::CVoronoiDiagram(const std::vector<Point> &p):
 {
    assert( p.size() > 0 && "set of generator point should not be empty");
    int index = 0;
-   std::vector<double> xVals;
-   std::vector<double> yVals;
    for (const Point& i: mGenPoints) 
    {
       mEventQueue.insert(Event_s(i, index)); // construct the new event prio queue out of generator points vectors
       mFaces.push_back(Face_s(i)); // generate faces vectors out of generator points vectors
-	  xVals.push_back(i.x);
-	  yVals.push_back(i.y);
       index++;
    }
-   // find max x, min x , max y and min y of all gen points
-	double r = 150;  // distance from the boundary box to the actual minimal and maximal values
-	double xMax = *std::max_element(xVals.begin(), xVals.end());
-	double xMin = *std::min_element(xVals.begin(), xVals.end());
-	double yMax = *std::max_element(yVals.begin(), yVals.end());
-	double yMin = *std::min_element(yVals.begin(), yVals.end());
-	// take the biggest distance as length of the boundary square 
-	double distance = std::max(xMax - xMin, yMax - yMin) + 2*r;
-	
-	BoundaryBox_s bBox( Point(xMin - r, yMax + r ), distance );  // create boundary box
-    mBbox = bBox;  // copy constructor
+
 }
 
 /*
@@ -41,7 +27,7 @@ CVoronoiDiagram::CVoronoiDiagram(const std::vector<Point> &p):
 */
 std::vector<Point> CVoronoiDiagram::getGenPoints()
 {
-	return  mGenPoints;
+   return  mGenPoints;
 }
 
 /*
@@ -49,12 +35,12 @@ std::vector<Point> CVoronoiDiagram::getGenPoints()
 */
 std::vector<Half_edge_s> CVoronoiDiagram::getEdges()
 {
-	return mHalfEdges;
+   return mHalfEdges;
 }
 
 CVoronoiDiagram::BoundaryBox_s CVoronoiDiagram::getbBox()
 {
-    return mBbox;	 
+   return mBbox;	 
 }
 
 /*
@@ -150,7 +136,7 @@ void CVoronoiDiagram::intersectEdgesWithBbox()
 		  Vector orthoVec(genPoint1.x - genPoint2.x, genPoint1.y - genPoint2.y);
 		  Vector lineVec(-orthoVec.y, orthoVec.x);  // vector that is orthogonal to the vector that connects the generation points (genPoint2 to the left)
 		  
-	      if(edge.nextHalfEdgeIndex == -1 && edge.prevHalfEdgeIndex == -1)
+	      if(edge.nextHalfEdgeIndex == -1 && edge.prevHalfEdgeIndex == -1) // if an edge is a ray  
 	      {
 			  Point origPoint( 0.5*(genPoint1.x + genPoint2.x), 0.5*(genPoint1.y + genPoint2.y) );  // this is the starting point for our vector
 			  std::pair<Point, Point> points = mBbox.calcIntersectionsWithLine(origPoint, lineVec);  //  if inifinite ray in both directions, calculate two intersection points with the boundary box
@@ -219,6 +205,54 @@ int CVoronoiDiagram::getTwinIndex(int edgeIndex)
    return mHalfEdges.at(edgeIndex).TwinEdge;
 }
 
+/*
+  needs to be called after voronoi diagram is constructed
+*/
+void CVoronoiDiagram::constructBbox()
+{
+   std::vector<double> x_vec; // vector of x coordinates of verteces and generator points
+   std::vector<double> y_vec;
+   
+   for (const Point& i: mGenPoints) 
+   {
+      x_vec.push_back(i.x);
+      y_vec.push_back(i.y);
+   }
+   
+   for(auto edge: mHalfEdges)
+   {
+      int twinEdgeInd = edge.TwinEdge;
+      Half_edge_s twinEdge = mHalfEdges.at(twinEdgeInd);
+      if(edge.Origin.x != edge.M_UnplausibleVal)  // ignore if vertex dos not exists(like e.g with only 2 generator points)
+      {
+         x_vec.push_back(edge.Origin.x);
+      }
+     
+      if(twinEdge.Origin.x != edge.M_UnplausibleVal)
+      {
+         x_vec.push_back(twinEdge.Origin.x);
+      }
+      
+      if(edge.Origin.y != edge.M_UnplausibleVal)
+      {
+         y_vec.push_back(edge.Origin.y);
+      }
+      
+      if(twinEdge.Origin.y != edge.M_UnplausibleVal)
+      {
+         y_vec.push_back(twinEdge.Origin.y);
+      }
+     
+   }
+   double xMax = *std::max_element(x_vec.begin(), x_vec.end());
+   double xMin = *std::min_element(x_vec.begin(), x_vec.end());
+   double yMax = *std::max_element(y_vec.begin(), y_vec.end());
+   double yMin = *std::min_element(y_vec.begin(), y_vec.end());
+	// take the biggest distance as length of the boundary square 
+   double distance = std::max(xMax - xMin, yMax - yMin) + 2*M_BBox_DistanceFromExtrema;
+   BoundaryBox_s bBox( Point(xMin - M_BBox_DistanceFromExtrema, yMax + M_BBox_DistanceFromExtrema ), distance );  // create boundary box
+   mBbox = bBox;  // copy constructor
+}
 
 /*
   connect prevEdge <--> Edge

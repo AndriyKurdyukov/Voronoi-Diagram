@@ -37,6 +37,8 @@ class CVoronoiDiagram
   
   void intersectEdgesWithBbox();
   
+  void constructBbox();
+  
   struct Line_segment_s
   {
     Point mBegin;
@@ -134,6 +136,7 @@ class CVoronoiDiagram
   
   protected:
   
+  double const M_BBox_DistanceFromExtrema = 10; // distance from the boundary box to the actual minimal and maximal values
   BoundaryBox_s mBbox;
   
   Half_edge_s& getEdge(int edgeIndex);

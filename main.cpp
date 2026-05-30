@@ -46,7 +46,6 @@ void drawVoronoiDiag(std::vector<Point> genPoints, CVoronoiDiagram::BoundaryBox_
             lines[pointCnt++].position = sf::Vector2f(line.mEnd.x, line.mEnd.y);
             //lines.color = sf::Color::Green;
           }
-	  //TODO  edges 
 	  // convert array of edges to vector of line strips with size 2, every edge and its twin -> one line strip
 	  std::vector<sf::VertexArray> lineEdgeStrips ;
 	  for(auto edge: HalfEdges)
@@ -103,14 +102,14 @@ int main(int argc, char * argv[])
    while (i < argc) 
    {
         //  tokenize chars coordinates and add to vector
-        std::string coordinates(argv[i]); 
-        auto delim_pos = coordinates.find(",");
-        assert(delim_pos != std::string::npos && "coordinates should be comma delimited");
-        std::string X_coord = coordinates.substr(0, delim_pos);
-        std::string Y_coord = coordinates.substr(delim_pos + 1, coordinates.size() - delim_pos - 1 );
+      std::string coordinates(argv[i]); 
+      auto delim_pos = coordinates.find(",");
+      assert(delim_pos != std::string::npos && "coordinates should be comma delimited");
+      std::string X_coord = coordinates.substr(0, delim_pos);
+      std::string Y_coord = coordinates.substr(delim_pos + 1, coordinates.size() - delim_pos - 1 );
         //std::cout<<"X:"<< X_coord <<" " << "Y"<< ": " << Y_coord << std::endl;
-        vector.push_back( Point(stod(X_coord), stod(Y_coord) )  );
-        i++;
+      vector.push_back( Point(stod(X_coord), stod(Y_coord) )  );
+      i++;
    }
    CVoronoiDiagram vorDiagram(vector);
    while(!vorDiagram.isEventQueueEmpty())
@@ -123,6 +122,7 @@ int main(int argc, char * argv[])
          vorDiagram.HandleCircleEvent(event);
      }
    }
+   vorDiagram.constructBbox();
    vorDiagram.intersectEdgesWithBbox();
    drawVoronoiDiag(vorDiagram.getGenPoints(), vorDiagram.getbBox(), vorDiagram.getEdges());
    return 0;
