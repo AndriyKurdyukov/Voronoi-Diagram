@@ -32,7 +32,7 @@ elif [ "$PATCH" ]; then
     echo "Update patch version"
     VNUM3=$((VNUM3+1))
 else 
-    exit 1
+    exit 0
 fi
 
 
