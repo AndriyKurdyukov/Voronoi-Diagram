@@ -17,6 +17,7 @@ VNUM1=`echo $VNUM1 | sed 's/v//'`
 # Check for #major or #minor in commit message and increment the relevant version number
 MAJOR=`git log --format=%B -n 1 HEAD | grep '#major'`
 MINOR=`git log --format=%B -n 1 HEAD | grep '#minor'`
+PATCH=`git log --format=%B -n 1 HEAD | grep '#patch'`
 
 if [ "$MAJOR" ]; then
     echo "Update major version"
@@ -27,9 +28,11 @@ elif [ "$MINOR" ]; then
     echo "Update minor version"
     VNUM2=$((VNUM2+1))
     VNUM3=0
-else
+elif [ "$PATCH" ]; then
     echo "Update patch version"
     VNUM3=$((VNUM3+1))
+else 
+    return
 fi
 
 

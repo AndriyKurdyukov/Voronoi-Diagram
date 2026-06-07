@@ -126,10 +126,12 @@ void CVoronoiDiagram::intersectEdgesWithBbox()
 	   // calculate intersections of voronoi line segments or rays with the boundary box
 	   if(edge.nextHalfEdgeIndex != -1 && edge.prevHalfEdgeIndex != -1) // if it is a line segment, origin and destination are known
 	   {
+	      std::cout <<" origin and destination are set "<<std::endl;
 		  //Point orig = edge.Origin;
 		  //Point dest =  mHalfEdges[edge.TwinEdge].Origin;
 		  // do nothing, both ends of an edge are already set
 	   } else {
+	          std::cout <<" origin or destination is not set "<<std::endl;
 		  Point genPoint1 = mGenPoints.at(edge.pointIndex);
 		  int twinPointIndex = mHalfEdges.at(edge.TwinEdge).pointIndex;
 		  Point genPoint2 =  mGenPoints.at(twinPointIndex);
@@ -721,7 +723,7 @@ TEST_CASE("IntegrationTest4Points_1") // 2 verteces are  connected by an edge
    CHECK(edges.size() == 10); 
 }
 
-TEST_CASE("IntegrationTest4Points_2")  // 2 verteces are not connected by an edge
+TEST_CASE("IntegrationTest4Points_2_EdgeNumTest")  // 2 verteces are not connected by an edge
 {
    std::vector<Point> vector = { Point(160,220), Point(200,300) , Point(160,420), Point(200,500) };
    CVoronoiDiagramTestInterface vorDiagram(vector);
@@ -737,6 +739,77 @@ TEST_CASE("IntegrationTest4Points_2")  // 2 verteces are not connected by an edg
    }
    std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
    CHECK(edges.size() == 10); 
+}
+
+TEST_CASE("IntegrationTest4Points_2_FullyConnectedEdgesNumTest")  //
+{
+   std::vector<Point> vector = { Point(160,220), Point(200,300) , Point(160,420), Point(200,500) };
+   CVoronoiDiagramTestInterface vorDiagram(vector);
+   while(!vorDiagram.isEventQueueEmpty())
+   {
+      Event_s event = vorDiagram.getTopPrioEvent();
+      if(event.isSiteEvent)
+      {
+         vorDiagram.HandleSiteEvent(event);
+      } else {
+         vorDiagram.HandleCircleEvent(event);
+     }
+   }
+   std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
+   int connectedEdgeNum = 0;
+   for(auto edge: edges)
+   {
+      if(edge.nextHalfEdgeIndex != -1 && edge.prevHalfEdgeIndex != -1)
+      {
+         connectedEdgeNum++;
+      }
+   }
+   CHECK(connectedEdgeNum== 2);  // 2 twin edges are fully connected
+}
+
+TEST_CASE("IntegrationTest4Points_3_EdgeNumTest") 
+{
+   std::vector<Point> vector = { Point(200,300), Point(220,125) , Point(250,140), Point(200,150) };
+   CVoronoiDiagramTestInterface vorDiagram(vector);
+   while(!vorDiagram.isEventQueueEmpty())
+   {
+      Event_s event = vorDiagram.getTopPrioEvent();
+      if(event.isSiteEvent)
+      {
+         vorDiagram.HandleSiteEvent(event);
+      } else {
+         vorDiagram.HandleCircleEvent(event);
+     }
+   }
+   std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
+   CHECK(edges.size() == 10); 
+}
+
+
+TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
+{
+   std::vector<Point> vector = { Point(200,300), Point(220,125) , Point(250,140), Point(200,150) };
+   CVoronoiDiagramTestInterface vorDiagram(vector);
+   while(!vorDiagram.isEventQueueEmpty())
+   {
+      Event_s event = vorDiagram.getTopPrioEvent();
+      if(event.isSiteEvent)
+      {
+         vorDiagram.HandleSiteEvent(event);
+      } else {
+         vorDiagram.HandleCircleEvent(event);
+     }
+   }
+   std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
+   int connectedEdgeNum = 0;
+   for(auto edge: edges)
+   {
+      if(edge.nextHalfEdgeIndex != -1 && edge.prevHalfEdgeIndex != -1)
+      {
+         connectedEdgeNum++;
+      }
+   }
+   CHECK(connectedEdgeNum== 2);  // 2 twin edges are fully connected
 }
 
 #endif
