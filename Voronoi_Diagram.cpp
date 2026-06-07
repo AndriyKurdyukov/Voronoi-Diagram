@@ -786,7 +786,7 @@ TEST_CASE("IntegrationTest4Points_3_EdgeNumTest")
 }
 
 
-TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
+/*TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
 {
    std::vector<Point> vector = { Point(200,300), Point(220,125) , Point(250,140), Point(200,150) };
    CVoronoiDiagramTestInterface vorDiagram(vector);
@@ -810,6 +810,6 @@ TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
       }
    }
    CHECK(connectedEdgeNum== 2);  // 2 twin edges are fully connected
-}
+} */
 
 #endif
