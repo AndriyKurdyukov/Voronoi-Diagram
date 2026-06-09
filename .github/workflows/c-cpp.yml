@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write # <-- Add this here for the entire workflow
+  contents: write
 
 jobs:
   build:
