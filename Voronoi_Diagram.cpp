@@ -126,12 +126,12 @@ void CVoronoiDiagram::intersectEdgesWithBbox()
 	   // calculate intersections of voronoi line segments or rays with the boundary box
 	   if(edge.nextHalfEdgeIndex != -1 && edge.prevHalfEdgeIndex != -1) // if it is a line segment, origin and destination are known
 	   {
-	      std::cout <<" origin and destination are set "<<std::endl;
+	      //std::cout <<" origin and destination are set "<<std::endl;
 		  //Point orig = edge.Origin;
 		  //Point dest =  mHalfEdges[edge.TwinEdge].Origin;
 		  // do nothing, both ends of an edge are already set
 	   } else {
-	          std::cout <<" origin or destination is not set "<<std::endl;
+	          //std::cout <<" origin or destination is not set "<<std::endl;
 		  Point genPoint1 = mGenPoints.at(edge.pointIndex);
 		  int twinPointIndex = mHalfEdges.at(edge.TwinEdge).pointIndex;
 		  Point genPoint2 =  mGenPoints.at(twinPointIndex);
@@ -299,7 +299,7 @@ void CVoronoiDiagram::constructBbox()
    getEdge(newEdgeTwinIndex).Origin  = vertex;  // set edge connections in the dcel   : prevArc <--rightedge--- vertex ---leftedge--> succArc
                                                                                                   //              |   
 																							     //             newEdge
-   succArc->leftEdgeIndex = newEdgeIndex;  // save new currently traced out twin edges , the "old" edges should be accessible from their faces and the vector of edges
+   succArc->leftEdgeIndex = newEdgeTwinIndex;  // save new currently traced out twin edges , the "old" edges should be accessible from their faces and the vector of edges
    prevArc->rightEdgeIndex = newEdgeIndex;
  }
  
@@ -575,6 +575,33 @@ TEST_CASE("handleNewVertex_EdgeConnectionTest")
    CHECK(diagram.getEdgeInt(p_k_EdgeIndex).prevHalfEdgeIndex  == leftEdgeIndex);
 }
 
+
+TEST_CASE("handleNewVertex_CheckIfNewEdgesTracedOutCorrectlyTest")
+{
+   std::vector<Point> p = { {1,0}, {2,3}, {3, -1} };  // the arc of the middle point is deleted
+   CVoronoiDiagramTestInterface diagram(p); // init faces and site events
+   Vertex_s intersectionPoint(2,5); // some values, not necessary plausible
+
+   diagram.createTwinEdgesInt(0, 1);
+   diagram.createTwinEdgesInt(1, 2);
+   
+   Arc_s arc1(p[0], 0);
+   Arc_s arc2(p[2], 2);
+   
+   arc1.rightEdgeIndex = 0;  // arcs and the edges being traced out should have identical site points
+   arc2.leftEdgeIndex = 3;
+   
+   int rightEdgeIndex = 0;
+   int leftEdgeIndex = 3;
+   diagram.handleNewVertexInt(intersectionPoint, 1, &arc1, &arc2);
+   
+   int p_i_EdgeIndex = 4;
+   int p_k_EdgeIndex = 5;
+   
+   CHECK(arc1.rightEdgeIndex == p_i_EdgeIndex);
+   CHECK(arc2.leftEdgeIndex == p_k_EdgeIndex);
+}
+
 TEST_CASE("LineSegmentIntersectionTest")
 {
    CVoronoiDiagram::Line_segment_s lineSeg(Point(0,0), Point(1,1));
@@ -786,7 +813,7 @@ TEST_CASE("IntegrationTest4Points_3_EdgeNumTest")
 }
 
 
-/*TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
+TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
 {
    std::vector<Point> vector = { Point(200,300), Point(220,125) , Point(250,140), Point(200,150) };
    CVoronoiDiagramTestInterface vorDiagram(vector);
@@ -810,6 +837,6 @@ TEST_CASE("IntegrationTest4Points_3_EdgeNumTest")
       }
    }
    CHECK(connectedEdgeNum== 2);  // 2 twin edges are fully connected
-} */
+}
 
 #endif
