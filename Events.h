@@ -33,7 +33,12 @@ struct Arc_s;  // forward declaration
   {
      bool operator()(const Event_s& rhs, const Event_s& lhs) const
      {
-        return lhs.point.y < rhs.point.y;
+        if(lhs.point.y != rhs.point.y)
+        {
+           return lhs.point.y < rhs.point.y; // biggest y first
+        } else {
+           return rhs.point.x < lhs.point.x; // if y equal, smallest x first
+        }
      } 
   };
   

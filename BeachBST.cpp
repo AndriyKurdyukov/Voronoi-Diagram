@@ -18,6 +18,7 @@ void CBeachBST::insertArcAfter (Arc_s* arcToInsert, Arc_s* targetArc)
    {
       mRoot = arcToInsert;
       mLeftMostArc = arcToInsert;
+      mRightMostArc = arcToInsert;
       arcToInsert->color = Color_e::BLACK_e; // root should always be black
       return;
    }
@@ -26,6 +27,9 @@ void CBeachBST::insertArcAfter (Arc_s* arcToInsert, Arc_s* targetArc)
    {
       arcToInsert->next = targetArc->next;
       targetArc->next->prev = arcToInsert;
+      mRightMostArc = targetArc->next;
+   } else {
+      mRightMostArc = arcToInsert;
    }
    targetArc->next = arcToInsert;
    arcToInsert->prev = targetArc;
@@ -68,7 +72,11 @@ void CBeachBST::deleteArc (Arc_s* arc)
    // unlink from the linked list
    if(arc ==  mLeftMostArc)  // TODO only for tests
    {
-      mLeftMostArc =arc->next;
+      mLeftMostArc = arc->next;
+   }
+   if(arc ==  mRightMostArc)
+   {
+      mRightMostArc = arc->prev;
    }
    if(arc->prev != nullptr)
    {
@@ -124,6 +132,11 @@ Arc_s* CBeachBST::findArcAboveInLinearTime(Arc_s* newSite, double sweepLineYpos)
        currArc = currArc->next; // else keep looking
     }
     return currArc; // nullptr if no arc found
+}
+
+Arc_s* CBeachBST::getRightMostArc()
+{
+   return mRightMostArc;
 }
 
 void CBeachBST::fixupInsert(Arc_s* arc) // fixup after inserting a new arc so that all red-black properties of the tree are ensured
@@ -278,8 +291,14 @@ Point CBeachBST::calculateParabolaIntersection (Point leftSite, Point rightSite,
 */
 CBeachBST::Breakpoint_s CBeachBST::calculateArcBreakpoints(Arc_s* arc, double sweepLineYpos)
 {
-	// highest and lowest possible values by default
+   // highest and lowest possible values by default
    Breakpoint_s result;
+   if(arc->sitePoint.y == sweepLineYpos) // if sweepline at the arc sitepoint, arc goes vertically up
+   { 
+      result.leftBreakpoint = arc->sitePoint.x;
+      result.rightBreakpoint = arc->sitePoint.x ;
+      return result;
+   }
    result.leftBreakpoint = -DBL_MAX ; // lowest possible value
    result.rightBreakpoint = DBL_MAX ;
    if(arc->next != nullptr)  // if right neghbor arc exists
@@ -483,6 +502,16 @@ TEST_CASE("ArcBreakpointsIntersectionTestSingleArcWithoutNeighbors")
    CBeachBST::Breakpoint_s breakpoints = beach.calculateArcBreakpoints(&arc1, 1);
    CHECK( breakpoints.leftBreakpoint == -DBL_MAX);
    CHECK( breakpoints.rightBreakpoint == DBL_MAX);
+}
+
+TEST_CASE("ArcBreakpointsIntersectionTestSweeplineOnArcSitePoint")
+{
+   CBeachBST beach;    
+   Point p1(2,1); 
+   Arc_s arc1(p1, 1);
+   CBeachBST::Breakpoint_s breakpoints = beach.calculateArcBreakpoints(&arc1, 1);
+   CHECK( breakpoints.leftBreakpoint == p1.x);
+   CHECK( breakpoints.rightBreakpoint == p1.x);
 }
 
 TEST_CASE("ParabolaIntersectionTestBreakpointInTheMiddle")

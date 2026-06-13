@@ -41,6 +41,7 @@ public:
    Arc_s* findArcAbove(Arc_s* newSite, double sweepLineYpos); // find arc that lies directly above the new site, the arc intersections depend on the sweep line y position
    Arc_s* findArcAboveInLinearTime(Arc_s* newSite, double sweepLineYpos); // for testing only
 	
+   Arc_s* getRightMostArc();
    bool isEmpty()  // is BST empty?
    {
       return (mRoot == nullptr);
@@ -55,6 +56,7 @@ private:
    Arc_s* mRoot = nullptr;  // root of the red black tree	
    
    Arc_s* mLeftMostArc = nullptr;  // TODO only use for testing , unnecessary when red black tree is used later
+   Arc_s* mRightMostArc = nullptr;
 };
 
 #endif

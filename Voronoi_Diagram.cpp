@@ -354,8 +354,17 @@ void CVoronoiDiagram::HandleSiteEvent(Event_s event)
    }
    Arc_s* arc = new Arc_s(event.point, event.pointIndex);
    double sweepLineYpos = event.point.y;
-   Arc_s* arcAbove = mBeachBST.findArcAboveInLinearTime(arc, sweepLineYpos);  //TODO special handling needed if no arc above exists!!
+   Arc_s* arcAbove = mBeachBST.findArcAboveInLinearTime(arc, sweepLineYpos);  //TODO special handling needed if no arc above exists -> nullptr
 
+   //assert( arcAbove != nullptr && "no arc above found, unhandled case of equal y coordinates");
+
+   bool isNoArcAbove = false;
+   isNoArcAbove = (arcAbove == nullptr); // the sweepline is simultaneously on one or more site points with equaly "y"
+   if(isNoArcAbove)
+   {
+      arcAbove = mBeachBST.getRightMostArc();  // get the rightmost arc since the site events are processed starting with smallest x
+   }
+   
    if(arcAbove->isEventSet) // check pointer to a circle event from arcAbove to  the priority queue and delete it 
    {
       arcAbove->isEventSet = false;
@@ -364,9 +373,14 @@ void CVoronoiDiagram::HandleSiteEvent(Event_s event)
       assert(erase_cnt == 1);
    } 
    mBeachBST.insertArcAfter (arc, arcAbove);
-   Arc_s* arcAboveCopy = new Arc_s(*arcAbove);  //               arcAbove--arc--arcAboveCopy
+   
+   Arc_s* arcAboveCopy = nullptr;
+   if(!isNoArcAbove)
+   {
+      arcAboveCopy = new Arc_s(*arcAbove);  //               arcAbove--arc--arcAboveCopy
    // insert a copy  of the arc above as well 
-   mBeachBST.insertArcAfter (arcAboveCopy, arc);  
+      mBeachBST.insertArcAfter (arcAboveCopy, arc); 
+   }
    // Create new half-edge records in the Voronoi diagram structure for the edge separating V(pi ) and V(p j ), which will be traced out by the two new breakpoints
    createTwinEdges(event.pointIndex, arcAbove->pointIndex);
    int newEdgeIndex =  mHalfEdges.size() - 2;
@@ -376,15 +390,21 @@ void CVoronoiDiagram::HandleSiteEvent(Event_s event)
    mFaces.at(event.pointIndex).outerComponentIndex = newEdgeIndex;
    mFaces.at(arcAbove->pointIndex).outerComponentIndex = newEdgeTwinIndex;
    
-   arcAboveCopy->leftEdgeIndex = newEdgeTwinIndex;  // every arc traces out the half edges tht belong to its face
-   arcAbove->rightEdgeIndex = newEdgeTwinIndex; 
+   if(!isNoArcAbove)
+   {
+      arcAboveCopy->leftEdgeIndex = newEdgeTwinIndex;  // every arc traces out the half edges tht belong to its face
+      arcAbove->rightEdgeIndex = newEdgeTwinIndex; 
    
-   arc->leftEdgeIndex = newEdgeIndex;  // new arc is in the middle and both breakpoints trace out the same edges, alway the half edge with new point = site point
-   arc->rightEdgeIndex = newEdgeIndex;
+      arc->leftEdgeIndex = newEdgeIndex;  // new arc is in the middle and both breakpoints trace out the same edges, alway the half edge with new point = site point
+      arc->rightEdgeIndex = newEdgeIndex;
   
    // Check the triple of consecutive arcs where the new arc for pi is the left arc to see if the breakpoints converge. If so, insert the circle event into Q and
    //checkTriplesForConvergence(arc->next, arc->prev);
-   checkTriplesForConvergenceWithEvolution(arc->next, arc->prev, sweepLineYpos);
+      checkTriplesForConvergenceWithEvolution(arc->next, arc->prev, sweepLineYpos);
+   } else {
+      arc->leftEdgeIndex = newEdgeIndex;  // every arc traces out the half edges that belong to its face
+      arcAbove->rightEdgeIndex = newEdgeTwinIndex; 
+   }
 }
  
 void CVoronoiDiagram::HandleCircleEvent(Event_s event)
@@ -439,6 +459,20 @@ TEST_CASE("CVoronoiDiagram_PriorityQueueLargestYFirstCheck")
    std::vector<Point> p = { {0,1}, {2,3}, {-3, -2} };
    CVoronoiDiagram diagram(p);
    CHECK(diagram.getTopPrioEvent().point.y == 3 );
+}
+
+TEST_CASE("CVoronoiDiagram_PriorityQueueSameYSizeCheck") 
+{
+   std::vector<Point> p = { {0,1}, {2,1} };
+   CVoronoiDiagram diagram(p);
+   CHECK(2 ==  diagram.getEventQueueSize() );
+}
+
+TEST_CASE("CVoronoiDiagram_PriorityQueueSameY_SmallestXFirstCheck") 
+{
+   std::vector<Point> p = { {2,1}, {3,1} };
+   CVoronoiDiagram diagram(p);
+   CHECK(diagram.getTopPrioEvent().point.x == 2 );
 }
 
 TEST_CASE("CVoronoiDiagram_PriorityQueueDeleteValCheck") 
@@ -591,8 +625,6 @@ TEST_CASE("handleNewVertex_CheckIfNewEdgesTracedOutCorrectlyTest")
    arc1.rightEdgeIndex = 0;  // arcs and the edges being traced out should have identical site points
    arc2.leftEdgeIndex = 3;
    
-   int rightEdgeIndex = 0;
-   int leftEdgeIndex = 3;
    diagram.handleNewVertexInt(intersectionPoint, 1, &arc1, &arc2);
    
    int p_i_EdgeIndex = 4;
@@ -813,9 +845,9 @@ TEST_CASE("IntegrationTest4Points_3_EdgeNumTest")
 }
 
 
-TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
+TEST_CASE("IntegrationTest2PointsSameY_EdgesNumTest")
 {
-   std::vector<Point> vector = { Point(200,300), Point(220,125) , Point(250,140), Point(200,150) };
+   std::vector<Point> vector = { Point(200,300), Point(230,300) };
    CVoronoiDiagramTestInterface vorDiagram(vector);
    while(!vorDiagram.isEventQueueEmpty())
    {
@@ -828,15 +860,30 @@ TEST_CASE("IntegrationTest4Points_3_FullyConnectedEdgesNumTest")
      }
    }
    std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
-   int connectedEdgeNum = 0;
-   for(auto edge: edges)
-   {
-      if(edge.nextHalfEdgeIndex != -1 && edge.prevHalfEdgeIndex != -1)
-      {
-         connectedEdgeNum++;
-      }
-   }
-   CHECK(connectedEdgeNum== 2);  // 2 twin edges are fully connected
+   CHECK(edges.size() == 2); 
 }
+
+TEST_CASE("IntegrationTest3PointsSameY_EdgesNumTest")
+{
+   std::vector<Point> vector = { Point(200,300), Point(230,300) , Point(260,300) };
+   CVoronoiDiagramTestInterface vorDiagram(vector);
+   while(!vorDiagram.isEventQueueEmpty())
+   {
+      Event_s event = vorDiagram.getTopPrioEvent();
+      if(event.isSiteEvent)
+      {
+         vorDiagram.HandleSiteEvent(event);
+      } else {
+         vorDiagram.HandleCircleEvent(event);
+     }
+   }
+   std::vector<Half_edge_s> edges = vorDiagram.getEdgesInt();
+   CHECK(edges.at(0).pointIndex == 1); 
+   CHECK(edges.at(1).pointIndex == 0); 
+   
+   CHECK(edges.at(2).pointIndex == 2); // edge of the new arc site point is added first
+   CHECK(edges.at(3).pointIndex == 1);
+}
+
 
 #endif
