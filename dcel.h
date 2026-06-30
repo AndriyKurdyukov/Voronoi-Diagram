@@ -118,7 +118,7 @@ struct Half_edge_s
   int nextHalfEdgeIndex = -1;  // index in the vector of edges
   int prevHalfEdgeIndex = -1;
   
-  double const M_UnplausibleVal = DBL_MAX;
+  static double constexpr M_UnplausibleVal = DBL_MAX;
   
   Half_edge_s(const Face_s& face, const int index): 
 	 Origin(DBL_MAX, DBL_MAX), // set origin to an unplausible value

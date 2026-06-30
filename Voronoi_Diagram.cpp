@@ -65,7 +65,7 @@ bool CVoronoiDiagram::isEventQueueEmpty()
 
 
 /**
- calculate areas of voronoi cells
+ calculate areas of voronoi cells, should be called after cosntruction of voronoi diagram
  
  return: vector of areas, index is same as vector of faces.
  if area is infinite, -1 is returned.
@@ -77,40 +77,44 @@ bool CVoronoiDiagram::isEventQueueEmpty()
 */
 std::vector<double> CVoronoiDiagram::calculateAreas()
 {
-	std::vector<double> resultVector;
+   std::vector<double> resultVector;
    // iterate over faces vector
-   int faceIndex = 0;
    double area = 0;
    int firstInd = -1;
    int currIndex = 0;
    for(auto face: mFaces)
    {
       // save first outer edge
-	  area = 0;
+      area = 0;
       firstInd = face.outerComponentIndex;	  
       currIndex = firstInd;
-	  do
-	  {
-	     // calcuate the base length of the triangle
+      assert(  currIndex != -1 && "outer edge of a face should not be empty");
+      do
+      {
+	 // calcuate the base length of the triangle
          Point Origin = getEdge(currIndex).Origin;
-		 Point Dest = getEdge(getTwinIndex(currIndex)).Origin;
-		 double triangleBaseLen = vectorOps::euclidDist(Origin, Dest);
-		 // calculate the height of the triangle
-		 Point genPoint1 =  mGenPoints.at(getEdge(currIndex).pointIndex);
-		 Point genPoint2 =  mGenPoints.at(getEdge(getTwinIndex(currIndex)).pointIndex);
-		 double height =  vectorOps::euclidDist(genPoint1, genPoint2)/2;
-		 area +=  0.5 * (height * triangleBaseLen);   // update area
-		 // go to the next edge index
-		 currIndex =  getEdge(currIndex).nextHalfEdgeIndex;
-	  } while(currIndex != -1 || currIndex != firstInd); // as long  as there is a next edge
+	 Point Dest = getEdge(getTwinIndex(currIndex)).Origin;
+	 if(Dest.x == Half_edge_s::M_UnplausibleVal  && Dest.y == Half_edge_s::M_UnplausibleVal)  // twin edge origin point not set
+	 {
+	    currIndex =  -1;  // resultVector.push_back(-1); is triggered -> infinite area
+	    break;
+	 }
+	 double triangleBaseLen = vectorOps::euclidDist(Origin, Dest);
+	 // calculate the height of the triangle
+         Point genPoint1 =  mGenPoints.at(getEdge(currIndex).pointIndex);
+	 Point genPoint2 =  mGenPoints.at(getEdge(getTwinIndex(currIndex)).pointIndex);
+	 double height =  vectorOps::euclidDist(genPoint1, genPoint2)/2;
+	 area +=  0.5 * (height * triangleBaseLen);   // update area
+         // go to the next edge index
+         currIndex =  getEdge(currIndex).nextHalfEdgeIndex;
+      }  while(currIndex != firstInd); // as long  as there is a next edge
 	  
-	  if(currIndex == firstInd) // the area is finite
-	  {
-	     resultVector.push_back(area); 
-	  } else { // edge list is not cyclical -> infinite area
-	     resultVector.push_back(-1);
-	  }
-	  faceIndex++;
+     if(currIndex == firstInd) // the area is finite
+     {
+        resultVector.push_back(area); 
+     } else { // edge list is not cyclical -> infinite area
+	resultVector.push_back(-1);
+     }
    }
    return resultVector;
 }
