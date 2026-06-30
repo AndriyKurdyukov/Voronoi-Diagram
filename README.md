@@ -10,12 +10,12 @@ Also some special edge cases are not yet handled, e.g the case of two generator 
 
 ## Dependencies
 
-- SFML 2.6 graphics library \
-- GNU Make \
+- SFML 2.6 graphics library
+- GNU Make
 
 ## Usage
 
-"./all [-a] filename"  build voronoi diagram, with flag "-a" for optional computation of voronoi cell areas(in pixels^2). The infinite areas are shown as "-1" \
-filename is expected to be a file with point coordinates in the following format: "x,y" per every new line.
-"./all -v"   output program version to the console. \
+"./all [-a] filename"  build voronoi diagram, with flag "-a" for optional computation of voronoi cell areas(in pixels^2). \ 
+The infinite areas are shown as "-1" , filename is expected to be a file with point coordinates in the following format: "x,y" per every new line. \
+"./all -v"   output program version to the console.
 
